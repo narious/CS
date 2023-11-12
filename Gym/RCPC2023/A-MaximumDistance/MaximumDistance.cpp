@@ -46,6 +46,16 @@ int solve_maximum_distance(vector<int> &vec_a, vector<int> &vec_b)
     }
     return max;
 }
+/*
+int solve_brute_force(vector<int> &vec_a, vector<int> &vec_b)
+{
+    int k = vec_a.size();
+    for (int i = 0; i < vec_a.size(); i++)
+    {
+
+    }
+}
+*/
 
 int main()
 {
