@@ -19,7 +19,10 @@ The only argument it needs is a file that has the following format e.g., <b>args
 
 [The processing of input and comparing with arguments could/should be refactored into the PROGRAM]
 
+## [Generating tests](./gentest.cpp)
+Test can be generated using `gentest.cpp` this will output a test.txt file that is randomly generated
 
+## Appendix
 ### Basic runner code for testings
 ```C++
 int main(int argc, char *argv[])

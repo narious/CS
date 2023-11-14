@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <unistd.h>
-#include "tests.h"
 
 using namespace std;
 
@@ -39,12 +38,6 @@ int main(int argc, char *argv[])
         int vec_len;
         vector<int> vec_a;
         vector<int> vec_b;
-
-        // Read in the vector then run the test
-        int res = solve_maximum_distance(vec_a, vec_b);
-        results.push_back(res);
-        vec_a.clear();
-        vec_b.clear();
     }
 
     /* Compare the output and check if passes */
