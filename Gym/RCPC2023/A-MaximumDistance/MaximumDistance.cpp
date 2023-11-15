@@ -13,14 +13,19 @@ int solve_maximum_distance(vector<int> &vec_a, vector<int> &vec_b)
     vector<int> *temp;
     vector<int> *prev = &memo_1; // pointer to pointer
     vector<int> *current = &memo_2;
+    int max = 0;
     for (int i = 1; i < n + 1; i++)
     {
         for (int j = 1; j < n + 1; j++)
         {
-            /* cout << vec_a[i - 1] << " , " << vec_b[j - 1] << endl; */
+            //  cout << vec_a[i - 1] << " , " << vec_b[j - 1] << endl;
             if (vec_a[i - 1] != vec_b[j - 1])
             {
                 (*current)[j] = (*prev)[j - 1] + 1;
+                if ((*current)[j] > max)
+                {
+                    max = (*current)[j];
+                }
             }
             else
             {
@@ -38,26 +43,49 @@ int solve_maximum_distance(vector<int> &vec_a, vector<int> &vec_b)
         cout << endl;
         */
     }
-    int max = 0;
-    for (int i = 0; i < n + 1; i++)
-    {
-        if ((*prev)[i] > max)
-        {
-            max = (*prev)[i];
-        }
-    }
     return max;
 }
-/*
+
 int solve_brute_force(vector<int> &vec_a, vector<int> &vec_b)
 {
-    int k = vec_a.size();
-    for (int i = 0; i < vec_a.size(); i++)
+    int n = vec_a.size();
+    int k = n;
+    int maxdist = 0;
+    while (k > 0)
     {
+        for (int i = 0; i < vec_a.size(); i++)
+        {
+            if (i + k > n)
+            {
+                break;
+            }
+            for (int j = 0; j < n; j++)
+            {
+                if (j + k > n)
+                {
+                    break;
+                }
+                int currdist = 0;
+                // check the distance
+                for (int l = 0; l < k; l++)
+                {
+                    if (vec_a[i + l] != vec_b[j + l])
+                    {
+                        currdist += 1;
+                    }
+                }
 
+                if (currdist > maxdist)
+                {
+                    maxdist = currdist;
+                }
+            }
+        }
+
+        k -= 1;
     }
+    return maxdist;
 }
-*/
 
 int Solution()
 {
@@ -114,6 +142,7 @@ int main(int argc, char *argv[])
     // Send total number of test cases
     int nCases;
     vector<int> results;
+    vector<int> brute_res;
     infile >> nCases;
     int vec_len;
     vector<int> vec_a;
@@ -136,28 +165,50 @@ int main(int argc, char *argv[])
 
         // Read in the vector then run the test
         int res = solve_maximum_distance(vec_a, vec_b);
+        int res_brute = solve_brute_force(vec_a, vec_b);
         results.push_back(res);
+        brute_res.push_back(res_brute);
         vec_a.clear();
         vec_b.clear();
     }
 
-    /* Compare the output and check if passes */
-    ifstream solfile(arg_lines[1]);
-    int sol;
     int nPass = 0;
-    for (int i = 0; i < nCases; i++)
+
+    if (argc > 2)
     {
-        solfile >> sol;
-        if (sol == results[i])
+        /* Compare the output and check if passes */
+        ifstream solfile(arg_lines[1]);
+        int sol;
+        for (int i = 0; i < nCases; i++)
         {
-            cout << "Pass: " << sol << endl;
-            nPass += 1;
+            solfile >> sol;
+            if (sol == results[i])
+            {
+                cout << "Pass: " << sol << endl;
+                nPass += 1;
+            }
+            else
+            {
+                cout << "Fail: " << sol << "!=" << results[i] << endl;
+            }
         }
-        else
-        {
-            cout << "Fail: " << sol << "!=" << results[i] << endl;
-        }
+        cout << nPass << "/" << nCases << endl;
     }
-    cout << nPass << "/" << nCases << endl;
+    else
+    {
+        for (int i = 0; i < nCases; i++)
+        {
+            if (brute_res[i] == results[i])
+            {
+                cout << "Pass: " << results[i] << endl;
+                nPass += 1;
+            }
+            else
+            {
+                cout << "Fail: " << brute_res[i] << "!=" << results[i] << endl;
+            }
+        }
+        cout << nPass << "/" << nCases << endl;
+    }
     return 0;
 }

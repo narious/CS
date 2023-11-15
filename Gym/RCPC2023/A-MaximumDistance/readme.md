@@ -29,5 +29,8 @@ Notice in the brute fore method we often retest the same parts over and over aga
 
 Define the memo such that `memo[i][j]` is the best difference between `s1[:i]` and `s2[:j]` where `s1[i]` is alligned with s[j]. Then `memo[i][j] = memo[i-1][j-1]` + 1 if `s1[i] != s2[j]` and + 0 otherwise. 
 
-##### Testing the code
+The max could be on either of the last column or the last row
+
+## Results and [Full Code](./MaximumDistance.cpp)
+![Amaxdist](./a-maxdist_res.png)
 
