@@ -96,5 +96,5 @@ Unfortunately the brute force solution failes on test case 10. Thus we must find
 
 
 
-## Non Brute Force
+## Non Brute Force and or Optimizations
 

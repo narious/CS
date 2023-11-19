@@ -8,7 +8,10 @@ using namespace std;
 
 vector<int> gen_random_vector(int vec_len, int min, int max);
 vector<int> permeate_vector(vector<int> &src, int iterations);
+int get_random_num(int min, int max);
 void generate_vector_test(ofstream &ostream, int n_vec, int len_vec, bool usePermutation);
+void generate_grid_test(ofstream &ostream, int n, int m, int val_min, int val_max);
+void generate_pairs(ofstream &ostream, int n, pair<int, int> x_range, pair<int, int> y_range);
 
 int main(int argc, char *argv[])
 {
@@ -18,17 +21,6 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    int nTest = 1;
-    int testLen = 10;
-    if (argc > 2)
-    {
-        nTest = atoi(argv[2]);
-    }
-    if (argc > 3)
-    {
-        testLen = atoi(argv[3]);
-    }
-
     /* initialize random seed: */
     srand(time(NULL));
 
@@ -36,14 +28,38 @@ int main(int argc, char *argv[])
     if (myfile.is_open())
     {
         /* This part can be modularized i.e., switch out gen function*/
-        myfile << nTest << "\n";
-        for (int i = 0; i < nTest; i++)
-        {
-            generate_vector_test(myfile, 1, testLen, true);
-        }
+
+        myfile << 700 << " " << 700 << " " << 10000 << "\n";
+        generate_grid_test(myfile, 700, 700, 1, 140000);
+        generate_pairs(myfile, 10000, {1, 700}, {1, 700});
         myfile.close();
     }
     return 0;
+}
+
+/* Grid generation module */
+
+void generate_grid_test(ofstream &ostream, int n, int m, int val_min, int val_max)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            ostream << get_random_num(val_min, val_max) << " ";
+        }
+        ostream << endl;
+    }
+}
+
+/* Pairs generation module */
+void generate_pairs(ofstream &ostream, int n, pair<int, int> x_range, pair<int, int> y_range)
+{
+    for (int i = 0; i < n; i++)
+    {
+        int x = get_random_num(x_range.first, x_range.second);
+        int y = get_random_num(y_range.first, y_range.second);
+        ostream << x << " " << y << endl;
+    }
 }
 
 /* Vector test generation module */
@@ -98,4 +114,9 @@ vector<int> permeate_vector(vector<int> &src, int iterations)
     }
 
     return res;
+}
+
+int get_random_num(int min, int max)
+{
+    return rand() % (max - min + 1) + min;
 }

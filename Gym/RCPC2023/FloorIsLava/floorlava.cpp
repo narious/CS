@@ -72,7 +72,7 @@ vector<int> lava_wait_room(vector<vector<int>> &room, vector<pair<int, int>> &po
     return max_wait;
 }
 
-int main()
+int _main()
 {
     int n;
     int m;
@@ -109,7 +109,7 @@ int main()
     return 0;
 }
 
-int _main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
