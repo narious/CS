@@ -8,6 +8,7 @@ using namespace std;
 
 void print_vector(vector<int> &vec);
 void print_vector(vector<pair<int, int>> &vec);
+int binary_search_lower(vector<int> &array, int start, int end, int target);
 
 vector<int> lava_wait_room(vector<vector<int>> &room, vector<pair<int, int>> &positions)
 {
@@ -37,14 +38,14 @@ vector<int> lava_wait_room(vector<vector<int>> &room, vector<pair<int, int>> &po
     /* Determine the time to wait for each participant */
     for (int k = 0; k < n_participants; k++)
     {
+        cout << k << endl;
         /* make positions 0-indexed*/
         int kpos_x = positions[k].first - 1;
         int kpos_y = positions[k].second - 1;
         /* prev_d records the fastest time to get to a cell of height h, since we are
         iterating largest h to smallest h, it means we can use prev_d for the current h */
         int prev_d = -1;
-
-        for (int l = n * m; l >= 0; l--)
+        for (int l = m * n; l >= 0; l++)
         {
             /* small_d is the shortest wait time achievable by person k to get to a cell of
             height it->first */
@@ -62,7 +63,6 @@ vector<int> lava_wait_room(vector<vector<int>> &room, vector<pair<int, int>> &po
             }
 
             prev_d = small_d;
-
             if (max_wait[l] == -1 || max_wait[l] < small_d)
             {
                 max_wait[l] = small_d;
@@ -153,6 +153,8 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/* To export to common */
+
 void print_vector(vector<int> &vec)
 {
     for (auto val : vec)
@@ -169,4 +171,34 @@ void print_vector(vector<pair<int, int>> &vec)
         cout << val.first << " , " << val.second << endl;
     }
     cout << endl;
+}
+
+// Any lower
+int binary_search_lower(vector<int> &array, int start, int end, int target)
+{
+    int mid = 0;
+    while (start < end)
+    {
+        mid = start / 2 + end / 2;
+        // cout << start << " " << end << " " << mid << endl;
+        if (array[mid] <= target)
+        {
+            // Do this to get the lower target
+            end = mid;
+        }
+        else if (array[mid] > target)
+        {
+            start = mid + 1;
+        }
+    }
+    if (array[start] == target)
+    {
+        return start - 1;
+    }
+    else if (array[start] < target)
+    {
+        return start;
+    }
+
+    return -1;
 }
