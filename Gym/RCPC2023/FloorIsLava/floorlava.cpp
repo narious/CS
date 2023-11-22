@@ -8,9 +8,10 @@ using namespace std;
 
 void print_vector(vector<int> &vec);
 void print_vector(vector<pair<int, int>> &vec);
+void print_2d_vector(vector<vector<int>> &map);
 int binary_search_lower(vector<int> &array, int start, int end, int target);
 
-vector<int> lava_wait_room(vector<vector<int>> &room, vector<pair<int, int>> &positions)
+vector<int> lava_wait_room_brute_force(vector<vector<int>> &room, vector<pair<int, int>> &positions)
 {
     int n = room.size();
     int m = room[0].size();
@@ -72,6 +73,50 @@ vector<int> lava_wait_room(vector<vector<int>> &room, vector<pair<int, int>> &po
     return max_wait;
 }
 
+vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>> &participants)
+{
+    int n = room.size();
+    int m = room[0].size();
+    int K = participants.size();
+
+    /* room rotated 45 degree right*/
+    vector<vector<int>> room_rot(n + m - 1, vector<int>());
+    /* Contains the RMQ for all rows */
+    vector<vector<vector<int>>> row_memo;
+    /* Contains the RMQ for all cols */
+    vector<vector<vector<int>>> col_memo;
+
+    print_2d_vector(room);
+    /* rotate the room (left side) */
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            if (i - j < 0)
+            {
+                break;
+            }
+            room_rot[i].push_back(room[i - j][j]);
+        }
+    }
+    /* rotate the room (bottom side) */
+    for (int i = 1; i < m; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            if (i + j >= m || n - j - 1 < 0)
+            {
+                break;
+            }
+            room_rot[i + n - 1].push_back(room[n - j - 1][i + j]);
+        }
+    }
+    /* generate all RMQ on the rows and column*/
+    print_2d_vector(room_rot);
+
+    return vector<int>(n * m, 0);
+}
+
 int _main()
 {
     int n;
@@ -98,7 +143,7 @@ int _main()
         positions.push_back({posx, posy});
     }
 
-    vector<int> res = lava_wait_room(room, positions);
+    vector<int> res = lava_wait_room_rmq(room, positions);
 
     for (int i = 1; i <= n * m; i++)
     {
@@ -142,7 +187,7 @@ int main(int argc, char *argv[])
         positions.push_back({posx, posy});
     }
 
-    vector<int> res = lava_wait_room(room, positions);
+    vector<int> res = lava_wait_room_rmq(room, positions);
 
     for (int i = 1; i <= n * m; i++)
     {
@@ -154,7 +199,6 @@ int main(int argc, char *argv[])
 }
 
 /* To export to common */
-
 void print_vector(vector<int> &vec)
 {
     for (auto val : vec)
@@ -171,6 +215,18 @@ void print_vector(vector<pair<int, int>> &vec)
         cout << val.first << " , " << val.second << endl;
     }
     cout << endl;
+}
+
+void print_2d_vector(vector<vector<int>> &map)
+{
+    for (int i = 0; i < map.size(); i++)
+    {
+        for (int j = 0; j < map[i].size(); j++)
+        {
+            cout << map[i][j] << " ";
+        }
+        cout << endl;
+    }
 }
 
 // Any lower

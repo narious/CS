@@ -102,7 +102,7 @@ Utilise [Range Minimum Queries](https://en.wikipedia.org/wiki/Range_minimum_quer
 ## Approach 
 
 We consider the problem statement again "Find the minmum <span style="color:green">Time Waited (T)</span> for each given <span style="color:green"> Lava level </span>.
-i.e., Given L -> T. However we notice that L <= 10,000. Instead we can rephrase the question as Find the maximum <span style="color:green"> Lava level </span> given each <span style="color:green"> Time Waited </span>. i.e., T -> L this is only upper bounded by n + m <= 1400.
+i.e., L $\Rightarrow$ T. However we notice that L $\leq$ 10,000. Instead we can rephrase the question as Find the maximum <span style="color:green"> Lava level </span> given each <span style="color:green"> Time Waited </span>. i.e., T $\Rightarrow$ L this is only upper bounded by n + m $\leq$ 1400.
 
 
 Once we have found the maximum lava level reachable $1 \leq l_{t\_max} \leq n * m$ given each time waited, $1 \leq t_i \leq n + m$, for each person, taking the lower bound since we want to find the slowest person, then we know that certainly the time required to wait to reach a height of  $l_{t\_max\_reachable}  \leq t_i$.
@@ -113,10 +113,18 @@ Whats left to solve is how we can find the maximum laval level reachable for eac
 
 Notice that for a any position $p_{i,j}$ and steps/time $t$ this forms a diamond centered around $p_{i,j}$. Also $l_{t\_max\_reachable} = \max(l_{t-1\_max\_reachable},\textnormal{max of outer diagonals t})$ thus we can use dynamic programming to calculate each $t/r$.
 
-Finally the outer diagonals form four arrays, we can find the maximum of each one using <span style="color:yellow">Range Minimum Queries.</span>. Further more there are n + m unique diagonals to calculate thus we have a time complexity of $(n + m)*n*log_2(n) =  O(n^2 log_(n))$ for the construction of the range minimum query.
+Finally the outer diagonals form four arrays, we can find the maximum of each one using <span style="color:yellow">Range Minimum Queries</span> to find the maximum of from the four arrays. Further more there are n + m unique diagonals to calculate thus we have a time complexity of $(n + m)*n*log_2(n) =  O(n^2 log(n))$ for the construction of the range minimum query.
 
 Since queries can be done in $O(1)$ the time complexity of the calculation step is $ (n + m) * K = O(n*K)$ and altogether it is
 
  Overall Time Complexity: $O(n^2*log(n) + n*K)$
  Overall Space Complexity: $O(n^2*log(n))$
-## Implmentation
+
+
+ #### Additional Notes on optimizing implementation
+ - The Range Minimum Queries will be swapped to Maximum Queries obviously
+ - Use of the $log_2$ version to find overlapping/fitting segments
+ - The original map will be rotated $45 \degree$ to form a diamond shape making it easier to calculate the diagonals surrounding the participants which are now rows and columns
+
+
+## Implementation
