@@ -78,6 +78,7 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     int n = room.size();
     int m = room[0].size();
     int K = participants.size();
+    vector<int> res(n * m, -1);
 
     /* room rotated 45 degree right*/
     vector<vector<int>> room_rot(n + m - 1, vector<int>());
@@ -86,10 +87,15 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     /* Contains the RMQ for all cols */
     vector<vector<vector<int>>> col_memo;
 
-    print_2d_vector(room);
     /* rotate the room (left side) */
     for (int i = 0; i < n; i++)
     {
+        int offset = n - i - 1;
+        for (int k = 0; k < offset; k++)
+        {
+            room_rot[i].push_back(0);
+        }
+
         for (int j = 0; j < m; j++)
         {
             if (i - j < 0)
@@ -97,11 +103,25 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
                 break;
             }
             room_rot[i].push_back(room[i - j][j]);
+            room_rot[i].push_back(0);
+        }
+
+        room_rot[i].pop_back();
+        int padding = n + m - room_rot[i].size() - 1;
+        for (int k = 0; k < padding; k++)
+        {
+            room_rot[i].push_back(0);
         }
     }
     /* rotate the room (bottom side) */
     for (int i = 1; i < m; i++)
     {
+        /* add the offset */
+        for (int k = 0; k < i; k++)
+        {
+            room_rot[i + n - 1].push_back(0);
+        }
+
         for (int j = 0; j < m; j++)
         {
             if (i + j >= m || n - j - 1 < 0)
@@ -109,12 +129,19 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
                 break;
             }
             room_rot[i + n - 1].push_back(room[n - j - 1][i + j]);
+            room_rot[i + n - 1].push_back(0);
+        }
+
+        room_rot[i + n - 1].pop_back();
+
+        int padding = n + m - room_rot[i + n - 1].size() - 1;
+        for (int k = 0; k < padding; k++)
+        {
+            room_rot[i + n - 1].push_back(0);
         }
     }
     /* generate all RMQ on the rows and column*/
-    print_2d_vector(room_rot);
-
-    return vector<int>(n * m, 0);
+    return res;
 }
 
 int _main()

@@ -126,5 +126,37 @@ Since queries can be done in $O(1)$ the time complexity of the calculation step 
  - Use of the $log_2$ version to find overlapping/fitting segments
  - The original map will be rotated $45 \degree$ to form a diamond shape making it easier to calculate the diagonals surrounding the participants which are now rows and columns
 
+Example $45 \degree$ rotation
+```
+1 2 3     
+2 3 4     
+3 4 5     
+
+     1
+   2   2
+ 3   3   3
+   4   4
+     5
+
+```
+```
+ 1 2 3 4 5
+ 2 3 4 5 6
+ 3 4 5 6 7
+
+      1     
+    2   2
+  3   3   3
+    4   4   4
+      5   5   5
+        6   6
+          7     
+```
+Noticable patterns when rotating $45 \degree$
+- Bottom left coner alligns with column 0
+- Top right corner alligns with the last column
+- The size of a row is n + m - 1
+- Upper left and lower right defines row 0 and last row 
+- distnace between them is n + m - 1
 
 ## Implementation
