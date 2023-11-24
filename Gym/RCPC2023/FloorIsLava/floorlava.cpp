@@ -76,59 +76,57 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     /* Contains the RMQ for all cols */
     vector<vector<vector<int>>> col_memo;
 
-    /* rotate the room (left side) */
-    for (int i = 0; i < n; i++)
+    int vertOffset = n - 1;
+    /* fill in all the offsets */
+    for (int i = 0; i < m + n - 1; i++)
     {
-        int offset = n - i - 1;
-        for (int k = 0; k < offset; k++)
+        if (i < n)
         {
-            room_rot[i].push_back(0);
+            for (int k = 0; k < n - 1 - i; k++)
+            {
+                room_rot[i].push_back(0);
+            }
         }
+        else
+        {
+            for (int k = 0; k < i - n + 1; k++)
+            {
+                room_rot[i].push_back(0);
+            }
+        }
+    }
 
+    for (int i = n - 1; i >= 0; i--)
+    {
         for (int j = 0; j < m; j++)
         {
-            if (i - j < 0)
-            {
-                break;
-            }
-            room_rot[i].push_back(room[i - j][j]);
-            room_rot[i].push_back(0);
+            room_rot[vertOffset + j].push_back(room[i][j]);
+            room_rot[vertOffset + j].push_back(0);
         }
+        vertOffset -= 1;
+    }
 
+    /* fill all the 0 in the end */
+    for (int i = 0; i < n + m - 1; i++)
+    {
         room_rot[i].pop_back();
-        int padding = n + m - room_rot[i].size() - 1;
-        for (int k = 0; k < padding; k++)
+        if (i < m)
         {
-            room_rot[i].push_back(0);
-        }
-    }
-    /* rotate the room (bottom side) */
-    for (int i = 1; i < m; i++)
-    {
-        /* add the offset */
-        for (int k = 0; k < i; k++)
-        {
-            room_rot[i + n - 1].push_back(0);
-        }
-
-        for (int j = 0; j < m; j++)
-        {
-            if (i + j >= m || n - j - 1 < 0)
+            for (int k = 0; k < m - 1 - i; k++)
             {
-                break;
+                room_rot[i].push_back(0);
             }
-            room_rot[i + n - 1].push_back(room[n - j - 1][i + j]);
-            room_rot[i + n - 1].push_back(0);
         }
-
-        room_rot[i + n - 1].pop_back();
-
-        int padding = n + m - room_rot[i + n - 1].size() - 1;
-        for (int k = 0; k < padding; k++)
+        else
         {
-            room_rot[i + n - 1].push_back(0);
+            for (int k = 0; k < i - m + 1; k++)
+            {
+                room_rot[i].push_back(0);
+            }
         }
     }
+
+    print_2d_vector(room_rot);
     /* generate all RMQ on the rows and column*/
     return res;
 }

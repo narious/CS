@@ -9,6 +9,6 @@ For including the header file we need to use -I + relative or absolute path
 
 For including the library common.a we need to use -L hence the full common would be (using either full path or relative path)
 
-`g++ -std=c++17 -L/Full/Path/To/library -I./../../../ -o etc etc.cpp`
+`g++ -std=c++17 -L/Full/Path/To/library -I./../../../ -o etc etc.cpp ./path/common.cpp`
 
 [For more info GNU docs](https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html)
