@@ -3,26 +3,15 @@
 #include <unordered_map>
 #include <fstream>
 #include <iostream>
+#include "include/common.h"
 
 using namespace std;
-
-void print_vector(vector<int> &vec);
-void print_vector(vector<pair<int, int>> &vec);
-void print_2d_vector(vector<vector<int>> &map);
-int binary_search_lower(vector<int> &array, int start, int end, int target);
 
 vector<int> lava_wait_room_brute_force(vector<vector<int>> &room, vector<pair<int, int>> &positions)
 {
     int n = room.size();
     int m = room[0].size();
     vector<int> max_wait(n * m + 1, -1);
-    /*
-    for (int i = 0; i < n; i++)
-    {
-        print_vector(room[i]);
-    }
-    print_vector(positions);
-    */
 
     int n_participants = positions.size();
     unordered_map<int, vector<pair<int, int>>> map;
@@ -223,65 +212,4 @@ int main(int argc, char *argv[])
     cout << endl;
 
     return 0;
-}
-
-/* To export to common */
-void print_vector(vector<int> &vec)
-{
-    for (auto val : vec)
-    {
-        cout << val << " ";
-    }
-    cout << endl;
-}
-
-void print_vector(vector<pair<int, int>> &vec)
-{
-    for (auto val : vec)
-    {
-        cout << val.first << " , " << val.second << endl;
-    }
-    cout << endl;
-}
-
-void print_2d_vector(vector<vector<int>> &map)
-{
-    for (int i = 0; i < map.size(); i++)
-    {
-        for (int j = 0; j < map[i].size(); j++)
-        {
-            cout << map[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-
-// Any lower
-int binary_search_lower(vector<int> &array, int start, int end, int target)
-{
-    int mid = 0;
-    while (start < end)
-    {
-        mid = start / 2 + end / 2;
-        // cout << start << " " << end << " " << mid << endl;
-        if (array[mid] <= target)
-        {
-            // Do this to get the lower target
-            end = mid;
-        }
-        else if (array[mid] > target)
-        {
-            start = mid + 1;
-        }
-    }
-    if (array[start] == target)
-    {
-        return start - 1;
-    }
-    else if (array[start] < target)
-    {
-        return start;
-    }
-
-    return -1;
 }
