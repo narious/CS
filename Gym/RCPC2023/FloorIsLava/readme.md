@@ -158,5 +158,7 @@ Noticable patterns when rotating $45 \degree$
 - The size of a row is n + m - 1
 - Upper left and lower right defines row 0 and last row 
 - distnace between them is n + m - 1
-
+- row_memo[i][j][k] is the ith rows  RMQ[k, $2^j$]
+- For any position p the equivalent on the rotate is 
+- The corresponding rows and columns are given the diagonal traveled r
 ## Implementation

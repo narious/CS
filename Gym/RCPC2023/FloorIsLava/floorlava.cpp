@@ -6,6 +6,8 @@
 #include "include/common.h"
 
 using namespace std;
+int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vector<int>>> &row_memo,
+                     vector<vector<vector<int>>> &col_memo, vector<vector<int>> &room_rot);
 
 vector<int> lava_wait_room_brute_force(vector<vector<int>> &room, vector<pair<int, int>> &positions)
 {
@@ -67,6 +69,7 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     int n = room.size();
     int m = room[0].size();
     int K = participants.size();
+    vector<int> time_wait(n + m, -1);
     vector<int> res(n * m, -1);
 
     /* room rotated 45 degree right*/
@@ -125,10 +128,71 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
             }
         }
     }
+    /* generate all RMQ on the rows and column
+    where row_memo[i][j][k] is the ith rows maximum from [k, 2^j] */
+    int max_row = (int)log(n + m - 1);
+    for (int i = 0; i < row_memo.size(); i++)
+    {
+        vector<vector<int>> memo;
 
-    print_2d_vector(room_rot);
-    /* generate all RMQ on the rows and column*/
+        for (int j = 0; j < max_row; j++)
+        {
+            for (int k = 0; k < n + m - 1; k++)
+            {
+                // TODO
+            }
+        }
+    }
+
+    /* find the highest height for each steps for each pariticpant */
+    for (int k = 0; k < K; k++)
+    {
+        for (int r = 0; r < n + m - 1; r++)
+        {
+            int highest_step = get_highest_step(participants[k], n, m, r, row_memo, col_memo, room_rot);
+            /* record the slowest person */
+            if (time_wait[r] > highest_step)
+            {
+                time_wait[r] = highest_step;
+            }
+        }
+    }
+
+    /* resolve the time waited to maximum heigh reachable when waiting r */
+    int lava_height = 1;
+    for (int i = 0; i < time_wait.size(); i++)
+    {
+        while (time_wait[i] >= lava_height)
+        {
+            res[lava_height] = i;
+            lava_height += 1;
+        }
+    }
+
     return res;
+}
+
+pair<int, int> get_diag_position(pair<int, int> &pos, int n, int m)
+{
+    int x = pos.first;
+    int y = pos.second;
+    /* offset then move */
+    pair<int, int> dpos = {x + y, n - 1 - x + y};
+    return dpos;
+}
+
+int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vector<int>> &room_rot)
+{
+    // TODO
+    int j = (int)log(end - start + 1);
+    return 0;
+}
+
+int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vector<int>>> &row_memo,
+                     vector<vector<vector<int>>> &col_memo, vector<vector<int>> &room_rot)
+{
+    // TODO
+    // Iterator through all the diagonal positions
 }
 
 int _main()
