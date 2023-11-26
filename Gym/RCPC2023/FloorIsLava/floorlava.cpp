@@ -139,9 +139,19 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
         {
             for (int k = 0; k < n + m - 1; k++)
             {
-                // TODO
+                if (j == 0)
+                {
+                    memo[k][j] = k;
+                }
+                else
+                {
+                    int a = room_rot[i][memo[k][j - 1]];
+                    int b = room_rot[i][memo[k + (int)pow(2, j - 1) - 1][j - 1]];
+                    memo[k][j] = a < b ? b : a;
+                }
             }
         }
+        row_memo.push_back(memo);
     }
 
     /* find the highest height for each steps for each pariticpant */
