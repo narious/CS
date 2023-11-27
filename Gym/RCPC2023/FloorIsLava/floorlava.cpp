@@ -146,12 +146,17 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
                 else
                 {
                     int a = room_rot[i][memo[k][j - 1]];
-                    int b = room_rot[i][memo[k + (int)pow(2, j - 1) - 1][j - 1]];
+                    int b = room_rot[i][memo[k + (int)pow(2, j - 1)][j - 1]];
                     memo[k][j] = a < b ? b : a;
                 }
             }
         }
         row_memo.push_back(memo);
+    }
+
+    for (int i = 0; col_memo.size(); i++)
+    {
+        // todo generate col memo
     }
 
     /* find the highest height for each steps for each pariticpant */
@@ -191,11 +196,28 @@ pair<int, int> get_diag_position(pair<int, int> &pos, int n, int m)
     return dpos;
 }
 
-int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vector<int>> &room_rot)
+// returns the value
+int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vector<int>> &room_rot, bool isRow, int index)
 {
-    // TODO
     int j = (int)log(end - start + 1);
-    return 0;
+    if (j == 0)
+    {
+        return memo[start][j];
+    }
+    int a = memo[start][j];
+    int b = memo[end - pow(2, j - 1)][j - 1];
+    if (isRow)
+    {
+        int vala = room_rot[index][start + a];
+        int valb = room_rot[index][end - pow(2, j - 1) + b];
+        return vala > valb ? vala : valb;
+    }
+    else
+    {
+        int vala = room_rot[start + a][index];
+        int valb = room_rot[end - pow(2, j - 1) + b][index];
+        return vala > valb ? vala : valb;
+    }
 }
 
 int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vector<int>>> &row_memo,
