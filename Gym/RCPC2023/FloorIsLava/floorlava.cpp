@@ -223,8 +223,29 @@ int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vect
 int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vector<int>>> &row_memo,
                      vector<vector<vector<int>>> &col_memo, vector<vector<int>> &room_rot)
 {
-    // TODO
-    // Iterator through all the diagonal positions
+    int max = 0;
+    int temp = 0;
+    if (r == 0)
+    {
+        for (int i = 0; i <= 1; i++)
+        {
+            for (int j = 0; j <= 1; j++)
+            {
+                if (abs(i) == abs(j))
+                {
+                    continue;
+                }
+                pair<int, int> pos(pos.first + i * r, pos.second + i * r);
+                pair<int, int> newPos = get_diag_position(pos, n, m);
+                bool isRow = abs(i) > abs(j);
+                // TODO refactor dont need to pass index since can determine from
+                temp = get_max_value_rmq(isRow ? row_memo : col_memo, 0, 0, room_rot, isRow, newPos.first);
+            }
+        }
+    }
+    else
+    {
+    }
 }
 
 int _main()
