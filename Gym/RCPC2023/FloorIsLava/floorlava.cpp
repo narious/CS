@@ -80,6 +80,7 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     vector<vector<vector<int>>> col_memo;
 
     int vertOffset = n - 1;
+
     /* fill in all the offsets */
     for (int i = 0; i < m + n - 1; i++)
     {
@@ -128,16 +129,26 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
             }
         }
     }
+
+    cout << "rot_room" << endl;
+    print_2d_vector(room_rot);
+
     /* generate all RMQ on the rows and column
     where row_memo[i][j][k] is the ith rows maximum from [k, 2^j] */
-    int max_row = (int)log(n + m - 1);
-    for (int i = 0; i < row_memo.size(); i++)
-    {
-        vector<vector<int>> memo;
+    int rot_dim = room_rot.size();
+    int max_pow = (int)log2(rot_dim) + 1;
 
-        for (int j = 0; j < max_row; j++)
+    cout << "room dim " << rot_dim << endl;
+    cout << "max pow " << max_pow << endl;
+
+    /* iterator for each row in the rot room */
+    for (int i = 0; i < rot_dim; i++)
+    {
+        vector<vector<int>> memo(rot_dim, vector<int>(max_pow, 0));
+
+        for (int j = 0; j < max_pow; j++)
         {
-            for (int k = 0; k < n + m - 1; k++)
+            for (int k = 0; k < rot_dim; k++)
             {
                 if (j == 0)
                 {
@@ -145,35 +156,72 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
                 }
                 else
                 {
+                    int span = k + (int)pow(2, j - 1);
                     int a = room_rot[i][memo[k][j - 1]];
-                    int b = room_rot[i][memo[k + (int)pow(2, j - 1)][j - 1]];
-                    memo[k][j] = a < b ? b : a;
+                    span = span < rot_dim ? span : rot_dim - (int)pow(2, j - 1);
+                    int b = span < rot_dim ? room_rot[i][memo[span][j - 1]]
+                                           : room_rot[i][memo[rot_dim - (int)pow(2, j - 1)][j - 1]];
+                    memo[k][j] = a < b ? memo[span][j - 1] : memo[k][j - 1];
                 }
             }
         }
+
+        cout << "row: " << i << endl;
+        print_2d_vector(memo);
         row_memo.push_back(memo);
     }
 
-    for (int i = 0; col_memo.size(); i++)
+    /*
+    int max_col = max_pow;
+    for (int i = 0; i < rot_dim; i++)
     {
-        // todo generate col memo
+        vector<vector<int>> memo(rot_dim, vector<int>(max_col, 0));
+        for (int j = 0; j < max_col; j++)
+        {
+            for (int k = 0; k < rot_dim; k++)
+            {
+                if (j == 0)
+                {
+                    memo[k][j] = room_rot[k][i];
+                }
+                else
+                {
+                    int span = k + (int)pow(2, j);
+                    if (span < rot_dim)
+                    {
+                        int a = room_rot[memo[k][j - 1]][i];
+                        int b = room_rot[memo[k + (int)pow(2, j - 1)][j - 1]][i];
+                        memo[k][j] = a < b ? b : a;
+                    }
+                }
+            }
+        }
+
+        cout << "col: " << i << endl;
+        print_2d_vector(memo);
+        col_memo.push_back(memo);
     }
+    */
 
     /* find the highest height for each steps for each pariticpant */
+
+    /*
     for (int k = 0; k < K; k++)
     {
         for (int r = 0; r < n + m - 1; r++)
         {
             int highest_step = get_highest_step(participants[k], n, m, r, row_memo, col_memo, room_rot);
-            /* record the slowest person */
             if (time_wait[r] > highest_step)
             {
                 time_wait[r] = highest_step;
             }
         }
     }
+    */
 
     /* resolve the time waited to maximum heigh reachable when waiting r */
+
+    /*
     int lava_height = 1;
     for (int i = 0; i < time_wait.size(); i++)
     {
@@ -183,6 +231,7 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
             lava_height += 1;
         }
     }
+    */
 
     return res;
 }
@@ -225,27 +274,34 @@ int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vec
 {
     int max = 0;
     int temp = 0;
-    if (r == 0)
+    for (int i = 0; i <= 1; i++)
     {
-        for (int i = 0; i <= 1; i++)
+        for (int j = 0; j <= 1; j++)
         {
-            for (int j = 0; j <= 1; j++)
+            if (abs(i) == abs(j))
             {
-                if (abs(i) == abs(j))
-                {
-                    continue;
-                }
-                pair<int, int> pos(pos.first + i * r, pos.second + i * r);
-                pair<int, int> newPos = get_diag_position(pos, n, m);
-                bool isRow = abs(i) > abs(j);
-                // TODO refactor dont need to pass index since can determine from
-                temp = get_max_value_rmq(isRow ? row_memo : col_memo, 0, 0, room_rot, isRow, newPos.first);
+                continue;
+            }
+            pair<int, int> kpos(pos.first + i * r, pos.second + i * r);
+            pair<int, int> newPos = get_diag_position(kpos, n, m);
+            bool isRow = abs(i) > abs(j);
+            // TODO refactor dont need to pass index since can determine from
+            if (isRow)
+            {
+                temp = get_max_value_rmq(row_memo[newPos.first], 0, 0 + r, room_rot, isRow, newPos.first);
+            }
+            else
+            {
+                temp = get_max_value_rmq(col_memo[newPos.second], 0, 0 + r, room_rot, isRow, newPos.second);
+            }
+
+            if (temp > max)
+            {
+                max = temp;
             }
         }
     }
-    else
-    {
-    }
+    return max;
 }
 
 int _main()
