@@ -162,3 +162,64 @@ Noticable patterns when rotating $45 \degree$
 - For any position p the equivalent on the rotate is 
 - The corresponding rows and columns are given the diagonal traveled r
 ## Implementation
+
+
+### Rotating the matrix 45 degree
+Done in three steps:
+- filling the left offsets
+- filling the values starting by bottom left corner
+- filling the remaining right padding
+
+Most loops are broken into two parts 
+```C++
+int vertOffset = n - 1;
+
+    /* fill in all the offsets */
+    for (int i = 0; i < m + n - 1; i++)
+    {
+        if (i < n)
+        {
+            for (int k = 0; k < n - 1 - i; k++)
+            {
+                room_rot[i].push_back(0);
+            }
+        }
+        else
+        {
+            for (int k = 0; k < i - n + 1; k++)
+            {
+                room_rot[i].push_back(0);
+            }
+        }
+    }
+
+    for (int i = n - 1; i >= 0; i--)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            room_rot[vertOffset + j].push_back(room[i][j]);
+            room_rot[vertOffset + j].push_back(0);
+        }
+        vertOffset -= 1;
+    }
+
+    /* fill all the 0 in the end */
+    for (int i = 0; i < n + m - 1; i++)
+    {
+        room_rot[i].pop_back();
+        if (i < m)
+        {
+            for (int k = 0; k < m - 1 - i; k++)
+            {
+                room_rot[i].push_back(0);
+            }
+        }
+        else
+        {
+            for (int k = 0; k < i - m + 1; k++)
+            {
+                room_rot[i].push_back(0);
+            }
+        }
+    }
+```

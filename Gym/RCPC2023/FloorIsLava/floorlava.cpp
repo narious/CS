@@ -79,6 +79,11 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     /* Contains the RMQ for all cols */
     vector<vector<vector<int>>> col_memo;
 
+    int x1 = 0;
+    int y1 = 0;
+    int x2 = 0;
+    int y2 = 0;
+
     int vertOffset = n - 1;
 
     /* fill in all the offsets */
@@ -138,70 +143,65 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     int rot_dim = room_rot.size();
     int max_pow = (int)log2(rot_dim) + 1;
 
-    cout << "room dim " << rot_dim << endl;
-    cout << "max pow " << max_pow << endl;
-
     /* iterator for each row in the rot room */
-    for (int i = 0; i < rot_dim; i++)
+    for (int rowMode = 0; rowMode <= 1; rowMode++)
     {
-        vector<vector<int>> memo(rot_dim, vector<int>(max_pow, 0));
-
-        for (int j = 0; j < max_pow; j++)
+        for (int i = 0; i < rot_dim; i++)
         {
-            for (int k = 0; k < rot_dim; k++)
-            {
-                if (j == 0)
-                {
-                    memo[k][j] = k;
-                }
-                else
-                {
-                    int span = k + (int)pow(2, j - 1);
-                    int a = room_rot[i][memo[k][j - 1]];
-                    span = span < rot_dim ? span : rot_dim - (int)pow(2, j - 1);
-                    int b = span < rot_dim ? room_rot[i][memo[span][j - 1]]
-                                           : room_rot[i][memo[rot_dim - (int)pow(2, j - 1)][j - 1]];
-                    memo[k][j] = a < b ? memo[span][j - 1] : memo[k][j - 1];
-                }
-            }
-        }
+            vector<vector<int>> memo(rot_dim, vector<int>(max_pow, 0));
 
-        cout << "row: " << i << endl;
-        print_2d_vector(memo);
-        row_memo.push_back(memo);
-    }
-
-    /*
-    int max_col = max_pow;
-    for (int i = 0; i < rot_dim; i++)
-    {
-        vector<vector<int>> memo(rot_dim, vector<int>(max_col, 0));
-        for (int j = 0; j < max_col; j++)
-        {
-            for (int k = 0; k < rot_dim; k++)
+            for (int j = 0; j < max_pow; j++)
             {
-                if (j == 0)
+                for (int k = 0; k < rot_dim; k++)
                 {
-                    memo[k][j] = room_rot[k][i];
-                }
-                else
-                {
-                    int span = k + (int)pow(2, j);
-                    if (span < rot_dim)
+                    if (j == 0)
                     {
-                        int a = room_rot[memo[k][j - 1]][i];
-                        int b = room_rot[memo[k + (int)pow(2, j - 1)][j - 1]][i];
-                        memo[k][j] = a < b ? b : a;
+                        memo[k][j] = k;
+                    }
+                    else
+                    {
+                        int span = k + (int)pow(2, j - 1);
+                        span = span < rot_dim ? span : rot_dim - (int)pow(2, j - 1);
+
+                        if (rowMode == 0)
+                        {
+                            x1 = i;
+                            x2 = i;
+                            y1 = memo[k][j - 1];
+                            y2 = memo[span][j - 1];
+                        }
+                        else
+                        {
+                            x1 = memo[k][j - 1];
+                            x2 = memo[span][j - 1];
+                            y1 = i;
+                            y2 = i;
+                        }
+
+                        int a = room_rot[x1][y1];
+                        int b = room_rot[x2][y2];
+                        if (rowMode == 0)
+                        {
+                            memo[k][j] = a < b ? y2 : y1;
+                        }
+                        else
+                        {
+                            memo[k][j] = a < b ? x2 : x1;
+                        }
                     }
                 }
             }
-        }
 
-        cout << "col: " << i << endl;
-        print_2d_vector(memo);
-        col_memo.push_back(memo);
+            if (rowMode == 0)
+            {
+                col_memo.push_back(memo);
+            }
+            else
+            {
+                row_memo.push_back(memo);
+            }
+        }
     }
-    */
 
     /* find the highest height for each steps for each pariticpant */
 
