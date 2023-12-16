@@ -161,11 +161,23 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
                     }
                     else
                     {
+                        // Span is the leftover that is not covered i.e.,
+                        // 0 1 2 3 4 5
+                        // [ - - ]
+                        //    k             - covers 2^2 = 4 positons
+                        //     [ -  - ]
+                        //       span       - covers the remaining numbers
+                        //                  - Since we cannot cover 2^3 = 8 number in one go
+
                         int span = k + (int)pow(2, j - 1);
                         span = span < rot_dim ? span : rot_dim - (int)pow(2, j - 1);
 
                         if (rowMode == 1)
                         {
+                            // Row is constant column index changes
+                            // 0 1 2 3 4 5
+                            // ^     ^
+
                             x1 = i;
                             x2 = i;
                             y1 = memo[k][j - 1];
@@ -173,6 +185,13 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
                         }
                         else
                         {
+                            // Column is constant row index changes
+                            // 0 <
+                            // 1
+                            // 2 <
+                            // 3
+                            // 4
+
                             x1 = memo[k][j - 1];
                             x2 = memo[span][j - 1];
                             y1 = i;
@@ -196,6 +215,8 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
 
             if (rowMode == 0)
             {
+                cout << "col " << i << endl;
+                print_2d_vector(memo);
                 col_memo.push_back(memo);
             }
             else
@@ -236,12 +257,16 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     return res;
 }
 
-pair<int, int> get_diag_position(pair<int, int> &pos, int n, int m)
+pair<int, int> get_diag_position(pair<int, int> &pos, int j, int i, int r)
 {
-    int x = pos.first;
-    int y = pos.second;
-    /* offset then move */
-    pair<int, int> dpos = {x + y, n - 1 - x + y};
+    //     +i
+    //      |
+    // -j - * - +j  roate 45 CW then observe the pos of j and i
+    //      |
+    //     -i
+    int hor_change = j == -1 || i == -1 ? -1 : 1;
+    int vert_change = j == -1 || i == 1 ? 1 : -1;
+    pair<int, int> dpos = {pos.first + r * vert_change, pos.second + r * hor_change};
     return dpos;
 }
 
@@ -259,7 +284,7 @@ int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vect
         return isRow ? room_rot[index][a] : room_rot[a][index];
     }
 
-    int b = memo[end - pow(2, j - 1)][j - 1];
+    int b = memo[end - pow(2, j) + 1][j];
     if (isRow)
     {
         vala = room_rot[index][a];
@@ -291,15 +316,14 @@ int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vec
             }
             cout << i << "," << j << endl;
             cout << "normal: " << pos.first << " " << pos.second << endl;
-            pair<int, int> kpos(pos.first + i * r, pos.second + j * r);
-            cout << "shifted: " << kpos.first << " " << kpos.second << endl;
+            pair<int, int> newPos = get_diag_position(pos, j, i, r);
+            cout << "diagPos: " << newPos.first << " " << newPos.second << endl;
 
-            if (kpos.first < 0 || kpos.first >= n || kpos.second < 0 || kpos.second >= m)
+            if (newPos.first < 0 || newPos.first >= (n + m - 1) || newPos.second < 0 || newPos.second >= (n + m - 1))
             {
                 continue;
             }
 
-            pair<int, int> newPos = get_diag_position(kpos, n, m);
             cout << "diagpos: " << newPos.first << " " << newPos.second << endl;
 
             bool isRow = abs(i) > abs(j);
