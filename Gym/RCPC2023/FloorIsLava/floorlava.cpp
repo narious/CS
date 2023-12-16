@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include "include/common.h"
 
 using namespace std;
@@ -163,7 +164,7 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
                         int span = k + (int)pow(2, j - 1);
                         span = span < rot_dim ? span : rot_dim - (int)pow(2, j - 1);
 
-                        if (rowMode == 0)
+                        if (rowMode == 1)
                         {
                             x1 = i;
                             x2 = i;
@@ -180,13 +181,14 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
 
                         int a = room_rot[x1][y1];
                         int b = room_rot[x2][y2];
+
                         if (rowMode == 0)
                         {
-                            memo[k][j] = a < b ? y2 : y1;
+                            memo[k][j] = a < b ? x2 : x1;
                         }
                         else
                         {
-                            memo[k][j] = a < b ? x2 : x1;
+                            memo[k][j] = a < b ? y2 : y1;
                         }
                     }
                 }
@@ -204,20 +206,18 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     }
 
     /* find the highest height for each steps for each pariticpant */
-
-    /*
     for (int k = 0; k < K; k++)
     {
         for (int r = 0; r < n + m - 1; r++)
         {
             int highest_step = get_highest_step(participants[k], n, m, r, row_memo, col_memo, room_rot);
+            cout << "r=" << r << " highest step " << highest_step << endl;
             if (time_wait[r] > highest_step)
             {
                 time_wait[r] = highest_step;
             }
         }
     }
-    */
 
     /* resolve the time waited to maximum heigh reachable when waiting r */
 
@@ -249,24 +249,28 @@ pair<int, int> get_diag_position(pair<int, int> &pos, int n, int m)
 int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vector<int>> &room_rot, bool isRow, int index)
 {
     int j = (int)log(end - start + 1);
+    int vala = 0;
+    int valb = 0;
+
+    int a = memo[start][j];
+
     if (j == 0)
     {
-        return memo[start][j];
+        return isRow ? room_rot[index][a] : room_rot[a][index];
     }
-    int a = memo[start][j];
+
     int b = memo[end - pow(2, j - 1)][j - 1];
     if (isRow)
     {
-        int vala = room_rot[index][start + a];
-        int valb = room_rot[index][end - pow(2, j - 1) + b];
-        return vala > valb ? vala : valb;
+        vala = room_rot[index][a];
+        valb = room_rot[index][b];
     }
     else
     {
-        int vala = room_rot[start + a][index];
-        int valb = room_rot[end - pow(2, j - 1) + b][index];
-        return vala > valb ? vala : valb;
+        vala = room_rot[a][index];
+        valb = room_rot[b][index];
     }
+    return vala > valb ? vala : valb;
 }
 
 int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vector<int>>> &row_memo,
@@ -274,27 +278,48 @@ int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vec
 {
     int max = 0;
     int temp = 0;
-    for (int i = 0; i <= 1; i++)
+    int start = 0;
+    int end = 0;
+    cout << r << endl;
+    for (int i = -1; i <= 1; i++)
     {
-        for (int j = 0; j <= 1; j++)
+        for (int j = -1; j <= 1; j++)
         {
             if (abs(i) == abs(j))
             {
                 continue;
             }
-            pair<int, int> kpos(pos.first + i * r, pos.second + i * r);
-            pair<int, int> newPos = get_diag_position(kpos, n, m);
-            bool isRow = abs(i) > abs(j);
-            // TODO refactor dont need to pass index since can determine from
-            if (isRow)
+            cout << i << "," << j << endl;
+            cout << "normal: " << pos.first << " " << pos.second << endl;
+            pair<int, int> kpos(pos.first + i * r, pos.second + j * r);
+            cout << "shifted: " << kpos.first << " " << kpos.second << endl;
+
+            if (kpos.first < 0 || kpos.first >= n || kpos.second < 0 || kpos.second >= m)
             {
-                temp = get_max_value_rmq(row_memo[newPos.first], 0, 0 + r, room_rot, isRow, newPos.first);
+                continue;
+            }
+
+            pair<int, int> newPos = get_diag_position(kpos, n, m);
+            cout << "diagpos: " << newPos.first << " " << newPos.second << endl;
+
+            bool isRow = abs(i) > abs(j);
+            /* determining the range room_rot */
+            int pivot = isRow ? newPos.second : newPos.first; // pivot is the index within that row or column to be used
+            int index = isRow ? newPos.first : newPos.second; // index is the row or column we are focusing on
+            if (i < 0 || j > 0)
+            {
+                start = std::max(pivot - r * 2, 0); // 2 * r Since after 45 deg rotate the matrix "expands"
+                end = pivot;
             }
             else
             {
-                temp = get_max_value_rmq(col_memo[newPos.second], 0, 0 + r, room_rot, isRow, newPos.second);
+                start = pivot;
+                end = min(pivot + r * 2, m + n - 1);
             }
+            cout << "start: " << start << " end: " << end << endl;
 
+            temp = get_max_value_rmq(isRow ? row_memo[index] : col_memo[index], start, end, room_rot, isRow, index);
+            cout << "rmq: " << temp << endl;
             if (temp > max)
             {
                 max = temp;
