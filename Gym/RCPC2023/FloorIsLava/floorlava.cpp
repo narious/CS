@@ -9,7 +9,8 @@
 using namespace std;
 int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vector<int>>> &row_memo,
                      vector<vector<vector<int>>> &col_memo, vector<vector<int>> &room_rot);
-
+void generate_45deg_right_room(vector<vector<int>> &room, vector<vector<int>> &room_rot, int n, int m);
+void generate_rmq(vector<vector<int>> &room_rot, vector<vector<vector<int>>> &row_memo, vector<vector<vector<int>>> &col_memo);
 vector<int> lava_wait_room_brute_force(vector<vector<int>> &room, vector<pair<int, int>> &positions)
 {
     int n = room.size();
@@ -80,11 +81,41 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     /* Contains the RMQ for all cols */
     vector<vector<vector<int>>> col_memo;
 
-    int x1 = 0;
-    int y1 = 0;
-    int x2 = 0;
-    int y2 = 0;
+    generate_45deg_right_room(room, room_rot, n, m);
+    cout << "rot_room" << endl;
+    print_2d_vector(room_rot);
+    generate_rmq(room_rot, row_memo, col_memo);
 
+    /* find the highest height for each steps for each pariticpant */
+    for (int k = 0; k < K; k++)
+    {
+        for (int r = 0; r < n + m - 1; r++)
+        {
+            int highest_step = get_highest_step(participants[k], n, m, r, row_memo, col_memo, room_rot);
+            cout << "r=" << r << " highest step " << highest_step << endl;
+            if (time_wait[r] > highest_step)
+            {
+                time_wait[r] = highest_step;
+            }
+        }
+    }
+
+    /* resolve the time waited to maximum heigh reachable when waiting r
+    res[i] = means mintime required to wait for lavaheight i*/
+    int lava_height = 1;
+    for (int i = 0; i < time_wait.size(); i++)
+    {
+        while (time_wait[i] >= lava_height)
+        {
+            res[lava_height] = i;
+            lava_height += 1;
+        }
+    }
+    return res;
+}
+
+void generate_45deg_right_room(vector<vector<int>> &room, vector<vector<int>> &room_rot, int n, int m)
+{
     int vertOffset = n - 1;
 
     /* fill in all the offsets */
@@ -135,12 +166,15 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
             }
         }
     }
+}
 
-    cout << "rot_room" << endl;
-    print_2d_vector(room_rot);
-
-    /* generate all RMQ on the rows and column
-    where row_memo[i][j][k] is the ith rows maximum from [k, 2^j] */
+void generate_rmq(vector<vector<int>> &room_rot, vector<vector<vector<int>>> &row_memo, vector<vector<vector<int>>> &col_memo)
+{
+    int x1 = 0;
+    int y1 = 0;
+    int x2 = 0;
+    int y2 = 0;
+    /* generate all RMQ on the rows and column where row_memo[i][j][k] is the ith rows maximum from [k, 2^j] */
     int rot_dim = room_rot.size();
     int max_pow = (int)log2(rot_dim) + 1;
 
@@ -223,33 +257,6 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
             }
         }
     }
-
-    /* find the highest height for each steps for each pariticpant */
-    for (int k = 0; k < K; k++)
-    {
-        for (int r = 0; r < n + m - 1; r++)
-        {
-            int highest_step = get_highest_step(participants[k], n, m, r, row_memo, col_memo, room_rot);
-            cout << "r=" << r << " highest step " << highest_step << endl;
-            if (time_wait[r] > highest_step)
-            {
-                time_wait[r] = highest_step;
-            }
-        }
-    }
-
-    /* resolve the time waited to maximum heigh reachable when waiting r
-    res[i] = means mintime required to wait for lavaheight i*/
-    int lava_height = 1;
-    for (int i = 0; i < time_wait.size(); i++)
-    {
-        while (time_wait[i] >= lava_height)
-        {
-            res[lava_height] = i;
-            lava_height += 1;
-        }
-    }
-    return res;
 }
 
 pair<int, int> get_diag_position(pair<int, int> &pos, int n, int m)
