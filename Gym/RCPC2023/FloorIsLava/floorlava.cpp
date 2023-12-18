@@ -257,23 +257,31 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     return res;
 }
 
-pair<int, int> get_diag_position(pair<int, int> &pos, int j, int i, int r)
+pair<int, int> get_diag_position(pair<int, int> &pos, int n, int m)
 {
-    //     +i
+    int x = pos.first;
+    int y = pos.second;
+    /* offset then move */
+    pair<int, int> dpos = {x + y, n - 1 - x + y};
+    return dpos;
+}
+pair<int, int> get_diag_shift(pair<int, int> &pos, int j, int i, int r)
+{
+    //     -i
     //      |
     // -j - * - +j  roate 45 CW then observe the pos of j and i
     //      |
-    //     -i
-    int hor_change = j == -1 || i == -1 ? -1 : 1;
-    int vert_change = j == -1 || i == 1 ? 1 : -1;
+    //     +i
+    int hor_change = j == 1 || i == -1 ? 1 : -1;
+    int vert_change = j == 1 || i == 1 ? 1 : -1;
     pair<int, int> dpos = {pos.first + r * vert_change, pos.second + r * hor_change};
     return dpos;
 }
 
 // returns the value
-int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vector<int>> &room_rot, bool isRow, int index)
+int get_max_value_rmq(vector<vector<int>> &memo, int start, int end /*inclusive*/, vector<vector<int>> &room_rot, bool isRow, int index)
 {
-    int j = (int)log(end - start + 1);
+    int j = (int)log2(end - start + 1); // Remember to specify base!!
     int vala = 0;
     int valb = 0;
 
@@ -285,6 +293,8 @@ int get_max_value_rmq(vector<vector<int>> &memo, int start, int end, vector<vect
     }
 
     int b = memo[end - pow(2, j) + 1][j];
+    cout << "j: " << j << endl;
+    cout << "a,b: " << a << "," << b << endl;
     if (isRow)
     {
         vala = room_rot[index][a];
@@ -316,32 +326,40 @@ int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vec
             }
             cout << i << "," << j << endl;
             cout << "normal: " << pos.first << " " << pos.second << endl;
-            pair<int, int> newPos = get_diag_position(pos, j, i, r);
+            pair<int, int> dPos = get_diag_position(pos, n, m);
+            cout << "dpos: " << dPos.first << " " << dPos.second << endl;
+            pair<int, int> newPos = get_diag_shift(dPos, j, i, r);
             cout << "diagPos: " << newPos.first << " " << newPos.second << endl;
 
             if (newPos.first < 0 || newPos.first >= (n + m - 1) || newPos.second < 0 || newPos.second >= (n + m - 1))
             {
                 continue;
             }
-
-            cout << "diagpos: " << newPos.first << " " << newPos.second << endl;
-
-            bool isRow = abs(i) > abs(j);
+            bool isRow = abs(j) > abs(i);
             /* determining the range room_rot */
-            int pivot = isRow ? newPos.second : newPos.first; // pivot is the index within that row or column to be used
-            int index = isRow ? newPos.first : newPos.second; // index is the row or column we are focusing on
-            if (i < 0 || j > 0)
+            // Example this is a row
+            //
+            //  1 2 3
+            //  4 5 6
+            //  7 8 9 <- "river" (row 0) = pos.first
+            //  ^
+            //  "flow"  pos.second traveles along the river
+            //
+
+            int index = isRow ? newPos.first : newPos.second; // index is the row or column i.e., the "river" in the rot_room
+            int pivot = isRow ? newPos.second : newPos.first; // pivot is the index within that row or column to be used i.e., the "flow"
+            if (i < 0 || j < 0)
             {
-                start = std::max(pivot - r * 2, 0); // 2 * r Since after 45 deg rotate the matrix "expands"
-                end = pivot;
+                start = pivot;
+                end = std::min(pivot + r * 2, m + n - 1); // 2 * r Since after 45 deg rotate the matrix "expands"
             }
             else
             {
-                start = pivot;
-                end = min(pivot + r * 2, m + n - 1);
+                start = std::max(pivot - r * 2, 0);
+                end = pivot;
             }
             cout << "start: " << start << " end: " << end << endl;
-
+            print_2d_vector(isRow ? row_memo[index] : col_memo[index]);
             temp = get_max_value_rmq(isRow ? row_memo[index] : col_memo[index], start, end, room_rot, isRow, index);
             cout << "rmq: " << temp << endl;
             if (temp > max)
