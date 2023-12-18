@@ -215,8 +215,6 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
 
             if (rowMode == 0)
             {
-                cout << "col " << i << endl;
-                print_2d_vector(memo);
                 col_memo.push_back(memo);
             }
             else
@@ -240,9 +238,8 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
         }
     }
 
-    /* resolve the time waited to maximum heigh reachable when waiting r */
-
-    /*
+    /* resolve the time waited to maximum heigh reachable when waiting r
+    res[i] = means mintime required to wait for lavaheight i*/
     int lava_height = 1;
     for (int i = 0; i < time_wait.size(); i++)
     {
@@ -252,8 +249,6 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
             lava_height += 1;
         }
     }
-    */
-
     return res;
 }
 
@@ -293,8 +288,6 @@ int get_max_value_rmq(vector<vector<int>> &memo, int start, int end /*inclusive*
     }
 
     int b = memo[end - pow(2, j) + 1][j];
-    cout << "j: " << j << endl;
-    cout << "a,b: " << a << "," << b << endl;
     if (isRow)
     {
         vala = room_rot[index][a];
@@ -315,7 +308,6 @@ int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vec
     int temp = 0;
     int start = 0;
     int end = 0;
-    cout << r << endl;
     for (int i = -1; i <= 1; i++)
     {
         for (int j = -1; j <= 1; j++)
@@ -324,12 +316,8 @@ int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vec
             {
                 continue;
             }
-            cout << i << "," << j << endl;
-            cout << "normal: " << pos.first << " " << pos.second << endl;
             pair<int, int> dPos = get_diag_position(pos, n, m);
-            cout << "dpos: " << dPos.first << " " << dPos.second << endl;
             pair<int, int> newPos = get_diag_shift(dPos, j, i, r);
-            cout << "diagPos: " << newPos.first << " " << newPos.second << endl;
 
             if (newPos.first < 0 || newPos.first >= (n + m - 1) || newPos.second < 0 || newPos.second >= (n + m - 1))
             {
@@ -358,10 +346,8 @@ int get_highest_step(pair<int, int> &pos, int n, int m, int r, vector<vector<vec
                 start = std::max(pivot - r * 2, 0);
                 end = pivot;
             }
-            cout << "start: " << start << " end: " << end << endl;
-            print_2d_vector(isRow ? row_memo[index] : col_memo[index]);
             temp = get_max_value_rmq(isRow ? row_memo[index] : col_memo[index], start, end, room_rot, isRow, index);
-            cout << "rmq: " << temp << endl;
+
             if (temp > max)
             {
                 max = temp;
