@@ -71,9 +71,12 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     int n = room.size();
     int m = room[0].size();
     int K = participants.size();
-    vector<int> time_wait(n + m, -1);
+    // Records maximum height achievable if we wait index amount of time
+    vector<int> time_wait(n + m - 1, -1);
+    // Records minimum amount of time to be safe from lava of height index. +1 to include n*m index
     vector<int> res(n * m, -1);
 
+    print_vector(res);
     /* room rotated 45 degree right*/
     vector<vector<int>> room_rot(n + m - 1, vector<int>());
     /* Contains the RMQ for all rows */
@@ -87,27 +90,30 @@ vector<int> lava_wait_room_rmq(vector<vector<int>> &room, vector<pair<int, int>>
     generate_rmq(room_rot, row_memo, col_memo);
 
     /* find the highest height for each steps for each pariticpant */
-    for (int k = 0; k < K; k++)
+    for (int participant = 0; participant < K; participant++)
     {
-        for (int r = 0; r < n + m - 1; r++)
+        for (int wait = 0; wait < n + m - 1; wait++)
         {
-            int highest_step = get_highest_step(participants[k], n, m, r, row_memo, col_memo, room_rot);
-            cout << "r=" << r << " highest step " << highest_step << endl;
-            if (time_wait[r] > highest_step)
+            int highest_step = get_highest_step(participants[participant], n, m, wait, row_memo, col_memo, room_rot);
+            cout << "r=" << wait << " highest step " << highest_step << endl;
+            if (time_wait[wait] == -1 || time_wait[wait] > highest_step)
             {
-                time_wait[r] = highest_step;
+                time_wait[wait] = highest_step;
             }
         }
     }
 
+    print_vector(time_wait);
+
     /* resolve the time waited to maximum heigh reachable when waiting r
     res[i] = means mintime required to wait for lavaheight i*/
     int lava_height = 1;
-    for (int i = 0; i < time_wait.size(); i++)
+    for (int wait = 0; wait < time_wait.size(); wait++)
     {
-        while (time_wait[i] >= lava_height)
+        while (lava_height < res.size() && time_wait[wait] >= lava_height)
         {
-            res[lava_height] = i;
+            // Res is 1-indexed i.e., lavaheight 1 corresponds to index 0
+            res[lava_height - 1] = wait;
             lava_height += 1;
         }
     }
@@ -436,7 +442,7 @@ int main(int argc, char *argv[])
 
     vector<int> res = lava_wait_room_rmq(room, positions);
 
-    for (int i = 1; i <= n * m; i++)
+    for (int i = 0; i < n * m; i++)
     {
         cout << res[i] << " ";
     }
